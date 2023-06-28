@@ -56,6 +56,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    userAddress   UserAddres[]
 }
 
 model VerificationToken {
@@ -64,4 +65,14 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model UserAddres{
+    id            String  @id @default(cuid())
+    country       String
+    city          String
+    postCode      String
+    street        String
+    buldingNumber String
+    flatNumber    String?
 }
