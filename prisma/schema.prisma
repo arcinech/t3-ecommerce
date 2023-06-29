@@ -74,7 +74,7 @@ model UserAddres {
   country       String
   city          String
   postCode      String
-  street        String
+  street        String?
   buldingNumber String
   flatNumber    String?
   user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -125,7 +125,7 @@ model AttributeValue {
   attributeId                String
   productTypeAttributeValues ProductTypeAttributeValue[]
 
-  ProductAttributeValues ProductAttributeValues[]
+  productAttributeValues ProductAttributeValues[]
 }
 
 model ProductAttributeValues {
