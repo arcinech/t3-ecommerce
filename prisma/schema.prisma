@@ -91,6 +91,19 @@ model Products {
   productTypeId   String
   CartItem        CartItem[]
   OrderItem       OrderItem[]
+  image           String?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  omnibus         Omnibus?
+  ProductStock    ProductStock?
+}
+
+model Omnibus {
+  id        String   @id @default(cuid())
+  price     Float
+  updatedAt DateTime @updatedAt
+  product   Products @relation(fields: [productId], references: [id])
+  productId String   @unique
 }
 
 model ProductType {
@@ -157,6 +170,7 @@ model Order {
   user       User        @relation(fields: [userId], references: [id])
   userId     String
   orderItems OrderItem[]
+  status     String
 }
 
 model OrderItem {
@@ -167,4 +181,13 @@ model OrderItem {
   productId String
   quantity  Int
   price     Float
+}
+
+model ProductStock {
+  id        String   @id @default(cuid())
+  product   Products @relation(fields: [productId], references: [id])
+  productId String   @unique
+  quantity  Int
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }
