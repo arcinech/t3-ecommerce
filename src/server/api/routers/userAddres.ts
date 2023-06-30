@@ -4,6 +4,17 @@ import {
   publicProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
+import { Prisma } from "@prisma/client";
+
+const defaultAddres = Prisma.validator<Prisma.UserAddresSelect>()({
+  id: true,
+  street: true,
+  city: true,
+  country: true,
+  buldingNumber: true,
+  flatNumber: true,
+  postCode: true,
+});
 
 export const userAddresRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
@@ -17,32 +28,37 @@ export const userAddresRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(({ input, ctx }) => {
       return ctx.prisma.userAddres.findUnique({
+        select: defaultAddres,
         where: {
           id: input.id,
         },
       });
     }),
-  create: protectedProcedure
+  createAddress: protectedProcedure
     .input(
       z.object({
-        country: z.string(),
-        city: z.string(),
         street: z.string(),
+        city: z.string(),
+        country: z.string(),
         buldingNumber: z.string(),
         flatNumber: z.string(),
-        postalCode: z.string(),
+        postCode: z.string(),
       })
     )
-    .mutate(({ input, ctx }) => {
+    .mutation(({ input, ctx }) => {
       return ctx.prisma.userAddres.create({
         data: {
-          country: input.country,
-          city: input.city,
           street: input.street,
+          city: input.city,
+          country: input.country,
           buldingNumber: input.buldingNumber,
           flatNumber: input.flatNumber,
-          postalCode: input.postalCode,
-          userId: ctx.session.user.id,
+          postCode: input.postCode,
+          user: {
+            connect: {
+              id: ctx.session.user.id,
+            },
+          },
         },
       });
     }),
