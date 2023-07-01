@@ -1,3 +1,33 @@
+[Created with T3 stack](#create-t3-app)
+
+# WIP
+
+This app was created as custom example for bulding fully functioning e-commerce app with T3 Stack.
+At Jyly 2023 it is still work in progress.
+
+# Features
+
+- [x] User registration vua next-auth with google
+- [x] User login vua next-auth with google
+- [x] User logout
+- [x] User profile page
+- [x] User profile update
+- [x] Product list page
+- [x] Product detail page
+- [x] Product search
+- [x] Product with customizable attributes
+
+# Used technologies
+
+This app was bulid upon t3 stack with following technologies:
+
+- [Next.js](https://nextjs.org)
+- [NextAuth.js](https://next-auth.js.org)
+- [Prisma](https://prisma.io)
+- [Tailwind CSS](https://tailwindcss.com)
+- [tRPC](https://trpc.io)
+- [daisyUI](https://daisyui.com/)
+
 # Create T3 App
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
