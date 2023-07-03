@@ -24,8 +24,19 @@ const defaultProduct = Prisma.validator<Prisma.ProductsSelect>()({
               name: true,
             },
           },
+          productAttributeValues: true,
         },
       },
+    },
+  },
+});
+
+const defaultAttributeValue = Prisma.validator<Prisma.AttributeValueSelect>()({
+  id: true,
+  value: true,
+  attribute: {
+    select: {
+      name: true,
     },
   },
 });
@@ -63,8 +74,35 @@ export const productsRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const product = await ctx.prisma.products.create({
-        select: defaultProduct,
+      const attributesArray = [];
+
+      for (const item of input.attributes) {
+        const attId = await ctx.prisma.attribute.findFirst({
+          select: {
+            id: true,
+          },
+          where: {
+            name: item.name,
+          },
+        });
+
+        if (!attId) throw new Error("Attribute not found");
+
+        attributesArray.push({
+          attributeValue: {
+            create: {
+              value: item.value,
+              attribute: {
+                connect: {
+                  id: attId.id,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      return await ctx.prisma.products.create({
         data: {
           name: input.name,
           price: input.price,
@@ -80,54 +118,9 @@ export const productsRouter = createTRPCRouter({
               price: input.price,
             },
           },
-        },
-      });
-
-      if (input.attributes && input.attributes.length === 0) return product;
-
-      for (const item of input.attributes) {
-        const attId = await ctx.prisma.attribute.findFirst({
-          select: {
-            id: true,
+          attributeValues: {
+            create: attributesArray,
           },
-          where: {
-            name: item.name,
-          },
-        });
-
-        if (!attId) throw new Error("Attribute not found");
-
-        const value = await ctx.prisma.attributeValue.create({
-          data: {
-            attribute: {
-              connect: {
-                id: attId.id,
-              },
-            },
-            value: item.value,
-          },
-        });
-
-        await ctx.prisma.productAttributeValues.create({
-          data: {
-            attributeValue: {
-              connect: {
-                id: value.id,
-              },
-            },
-            product: {
-              connect: {
-                id: product.id,
-              },
-            },
-          },
-        });
-      }
-
-      return await ctx.prisma.products.findUnique({
-        select: defaultProduct,
-        where: {
-          id: product.id,
         },
       });
     }),
@@ -140,7 +133,7 @@ export const productsRouter = createTRPCRouter({
         price: z.number().optional(),
       })
     )
-    .query(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       const product = await ctx.prisma.products.findUnique({
         where: {
           id: input.id,
