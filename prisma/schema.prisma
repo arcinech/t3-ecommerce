@@ -93,7 +93,7 @@ model Products {
   OrderItem       OrderItem[]
   image           String?
   createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @updatedAt
+  updatedAt       DateTime                 @default(now())
   omnibus         Omnibus?
   ProductStock    ProductStock?
 }
@@ -125,20 +125,20 @@ model ProductTypeAttributeValue {
 
 model Attribute {
   id              String           @id @default(cuid())
-  name            String
+  name            String           @unique
   description     String
   attributeValues AttributeValue[]
 }
 
 model AttributeValue {
   id                         String                      @id @default(cuid())
-  name                       String
-  description                String
+  value                      String
   attribute                  Attribute                   @relation(fields: [attributeId], references: [id])
   attributeId                String
   productTypeAttributeValues ProductTypeAttributeValue[]
 
   productAttributeValues ProductAttributeValues[]
+  
 }
 
 model ProductAttributeValues {
@@ -147,6 +147,8 @@ model ProductAttributeValues {
   productId        String
   attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
   attributeValueId String
+
+  @@unique([productId, attributeValueId])
 }
 
 model CartItem {
@@ -166,11 +168,11 @@ model Cart {
 }
 
 model Order {
-  id         String      @id @default(cuid())
-  user       User        @relation(fields: [userId], references: [id])
+  id         String       @id @default(cuid())
+  user       User         @relation(fields: [userId], references: [id])
   userId     String
   orderItems OrderItem[]
-  status     String
+  status     String       @default("NEW")
 }
 
 model OrderItem {
@@ -188,6 +190,6 @@ model ProductStock {
   product   Products @relation(fields: [productId], references: [id])
   productId String   @unique
   quantity  Int
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
   createdAt DateTime @default(now())
 }
