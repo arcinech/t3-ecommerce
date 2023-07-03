@@ -14,6 +14,20 @@ const defaultProduct = Prisma.validator<Prisma.ProductsSelect>()({
   productTypeId: true,
   image: true,
   omnibus: true,
+  attributeValues: {
+    select: {
+      attributeValue: {
+        select: {
+          value: true,
+          attribute: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  },
 });
 
 export const productsRouter = createTRPCRouter({
@@ -32,18 +46,24 @@ export const productsRouter = createTRPCRouter({
         },
       });
     }),
-  create: protectedProcedure
+  create: publicProcedure
     .input(
       z.object({
         name: z.string(),
         price: z.number(),
         description: z.string(),
-        productType: z.string(),
-        image: z.string(),
+        productType: z.string().optional(),
+        image: z.string().optional(),
+        attributes: z.array(
+          z.object({
+            name: z.string(),
+            value: z.string(),
+          })
+        ),
       })
     )
-    .mutation(({ input, ctx }) => {
-      return ctx.prisma.products.create({
+    .mutation(async ({ input, ctx }) => {
+      const product = await ctx.prisma.products.create({
         select: defaultProduct,
         data: {
           name: input.name,
@@ -57,12 +77,61 @@ export const productsRouter = createTRPCRouter({
           image: input.image,
           omnibus: {
             create: {
-                price: input.price,
-                }
+              price: input.price,
+            },
+          },
+        },
+      });
+
+      if (input.attributes && input.attributes.length === 0) return product;
+
+      for (const item of input.attributes) {
+        const attId = await ctx.prisma.attribute.findFirst({
+          select: {
+            id: true,
+          },
+          where: {
+            name: item.name,
+          },
+        });
+
+        if (!attId) throw new Error("Attribute not found");
+
+        const value = await ctx.prisma.attributeValue.create({
+          data: {
+            attribute: {
+              connect: {
+                id: attId.id,
               },
+            },
+            value: item.value,
+          },
+        });
+
+        await ctx.prisma.productAttributeValues.create({
+          data: {
+            attributeValue: {
+              connect: {
+                id: value.id,
+              },
+            },
+            product: {
+              connect: {
+                id: product.id,
+              },
+            },
+          },
+        });
+      }
+
+      return await ctx.prisma.products.findUnique({
+        select: defaultProduct,
+        where: {
+          id: product.id,
         },
       });
     }),
+
   update: protectedProcedure
     .input(
       z.object({
