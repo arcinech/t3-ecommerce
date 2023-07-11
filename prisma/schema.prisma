@@ -93,9 +93,8 @@ model Products {
   OrderItem       OrderItem[]
   image           String?
   createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
   omnibus         Omnibus?
-  ProductStock    ProductStock?
 }
 
 model Omnibus {
@@ -103,7 +102,7 @@ model Omnibus {
   price     Float
   updatedAt DateTime @updatedAt
   product   Products @relation(fields: [productId], references: [id])
-  productId String   @unique
+  productId String @unique
 }
 
 model ProductType {
@@ -138,7 +137,6 @@ model AttributeValue {
   productTypeAttributeValues ProductTypeAttributeValue[]
 
   productAttributeValues ProductAttributeValues[]
-  
 }
 
 model ProductAttributeValues {
@@ -147,8 +145,6 @@ model ProductAttributeValues {
   productId        String
   attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
   attributeValueId String
-
-  @@unique([productId, attributeValueId])
 }
 
 model CartItem {
@@ -156,8 +152,8 @@ model CartItem {
   product   Products @relation(fields: [productId], references: [id])
   productId String
   quantity  Int
-  Cart      Cart?    @relation(fields: [cartId], references: [id])
-  cartId    String?
+  Cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId    String @unique
 }
 
 model Cart {
@@ -168,11 +164,11 @@ model Cart {
 }
 
 model Order {
-  id         String       @id @default(cuid())
-  user       User         @relation(fields: [userId], references: [id])
+  id         String      @id @default(cuid())
+  user       User        @relation(fields: [userId], references: [id])
   userId     String
   orderItems OrderItem[]
-  status     String       @default("NEW")
+  status     String
 }
 
 model OrderItem {
@@ -183,13 +179,4 @@ model OrderItem {
   productId String
   quantity  Int
   price     Float
-}
-
-model ProductStock {
-  id        String   @id @default(cuid())
-  product   Products @relation(fields: [productId], references: [id])
-  productId String   @unique
-  quantity  Int
-  updatedAt DateTime @default(now())
-  createdAt DateTime @default(now())
 }

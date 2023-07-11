@@ -5,17 +5,35 @@
 This app was created as custom example for bulding fully functioning e-commerce app with T3 Stack.
 At Jyly 2023 it is still work in progress.
 
-# Features
+# Todo
 
-- [x] User registration vua next-auth with google
-- [x] User login vua next-auth with google
-- [x] User logout
-- [x] User profile page
-- [x] User profile update
-- [x] Product list page
-- [x] Product detail page
-- [x] Product search
-- [x] Product with customizable attributes
+## Backend
+
+- [] Update Prisma schema
+- [] Create logic TRPC routes for:
+  - [] Product list
+  - [] Product detail
+  - [] Order list
+  - [] Order detail
+  - [] Product with customizable attributes
+
+## Frontend
+
+- [] Create pages for:
+
+  - [] Login
+  - [] Register
+  - [] Product list
+  - [] Product detail
+  - [] Order list
+  - [] Order detail
+  - [] Cart list
+  - [] Cart detail
+
+  ## Backlog
+
+- [] Cart list
+- [] Cart detail
 
 # Used technologies
 

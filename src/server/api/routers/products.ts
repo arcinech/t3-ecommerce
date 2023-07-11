@@ -31,16 +31,6 @@ const defaultProduct = Prisma.validator<Prisma.ProductsSelect>()({
   },
 });
 
-const defaultAttributeValue = Prisma.validator<Prisma.AttributeValueSelect>()({
-  id: true,
-  value: true,
-  attribute: {
-    select: {
-      name: true,
-    },
-  },
-});
-
 export const productsRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.products.findMany({
